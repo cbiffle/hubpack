@@ -2,6 +2,12 @@ use serde::de::{self, Visitor, IntoDeserializer};
 use serde::Deserialize;
 use crate::error::{Error, Result};
 
+pub fn deserialize<T: de::DeserializeOwned>(data: &[u8]) -> Result<(T, usize)> {
+    let mut d = Deserializer { data };
+    let val = T::deserialize(&mut d)?;
+    Ok((val, 0))
+}
+
 pub struct Deserializer<'de> {
     data: &'de [u8],
 }

@@ -6,9 +6,9 @@ pub mod error;
 
 pub mod size;
 
-// pub use de::{from_str, Deserializer};
+pub use de::deserialize;
 // pub use error::{Error, Result};
-// pub use ser::to_string, Serializer};
+pub use ser::serialize;
 
 #[cfg(test)]
 mod tests {
