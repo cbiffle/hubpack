@@ -1,0 +1,13 @@
+[package]
+name = "hubpack_derive"
+version = "0.1.0"
+authors = ["Cliff L. Biffle <code@cliffle.com>"]
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "1"
+proc-macro2 = "1"
+quote = "1"

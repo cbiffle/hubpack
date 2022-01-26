@@ -1,9 +1,16 @@
 [package]
-name = "serdecodec"
+name = "hubpack"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = {version = "1", default-features = false}
+serde = { version = "1.0.136", default-features = false }
+hubpack_derive = { path = "derive" }
+
+[dev-dependencies]
+serde = { version = "1.0.136", default-features = false, features = ["derive"] }
+
+[workspace]
+members = ["derive"]

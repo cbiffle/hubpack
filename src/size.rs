@@ -54,12 +54,22 @@ impl<A: SerializedSize> SerializedSize for (A,) {
     const MAX_SIZE: usize = A::MAX_SIZE;
 }
 
-impl<A: SerializedSize, B: SerializedSize> SerializedSize for (A, B) {
-    const MAX_SIZE: usize = const_max(A::MAX_SIZE, B::MAX_SIZE);
+macro_rules! tuple_impl {
+    ($a:ident, $($rest:ident),+) => {
+        impl<$a: SerializedSize, $($rest: SerializedSize),+> SerializedSize for ($a, $($rest),+) {
+            const MAX_SIZE: usize = $a::MAX_SIZE + <($($rest,)*)>::MAX_SIZE;
+        }
+    };
 }
 
-impl<A: SerializedSize, B: SerializedSize, C: SerializedSize> SerializedSize for (A, B, C) {
-    const MAX_SIZE: usize = const_max(A::MAX_SIZE, <(B, C)>::MAX_SIZE);
-}
-
-
+tuple_impl!(A, B);
+tuple_impl!(A, B, C);
+tuple_impl!(A, B, C, D);
+tuple_impl!(A, B, C, D, E);
+tuple_impl!(A, B, C, D, E, F);
+tuple_impl!(A, B, C, D, E, F, G);
+tuple_impl!(A, B, C, D, E, F, G, H);
+tuple_impl!(A, B, C, D, E, F, G, H, I);
+tuple_impl!(A, B, C, D, E, F, G, H, I, J);
+tuple_impl!(A, B, C, D, E, F, G, H, I, J, K);
+tuple_impl!(A, B, C, D, E, F, G, H, I, J, K, L);

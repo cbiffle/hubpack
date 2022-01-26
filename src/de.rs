@@ -2,10 +2,10 @@ use serde::de::{self, Visitor, IntoDeserializer};
 use serde::Deserialize;
 use crate::error::{Error, Result};
 
-pub fn deserialize<T: de::DeserializeOwned>(data: &[u8]) -> Result<(T, usize)> {
+pub fn deserialize<T: de::DeserializeOwned>(data: &[u8]) -> Result<(T, &[u8])> {
     let mut d = Deserializer { data };
     let val = T::deserialize(&mut d)?;
-    Ok((val, 0))
+    Ok((val, d.data))
 }
 
 pub struct Deserializer<'de> {
@@ -157,10 +157,10 @@ impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {
     where
         V: Visitor<'de>,
     {
-        match self.take_u8()? {
-            0 => visitor.visit_none(),
-            1 => visitor.visit_some(self),
-            _ => Err(Error::Invalid),
+        if bool::deserialize(&mut *self)? {
+            visitor.visit_some(self)
+        } else {
+            visitor.visit_none()
         }
     }
 
@@ -175,14 +175,14 @@ impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {
     where
         V: Visitor<'de>,
     {
-        visitor.visit_seq(SeqAccess { inner: self, len: len })
+        self.deserialize_tuple(len, visitor)
     }
 
     fn deserialize_struct<V>(self, _name: &'static str, fields: &[&'static str], visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        visitor.visit_seq(SeqAccess { inner: self, len: fields.len() })
+        self.deserialize_tuple(fields.len(), visitor)
     }
 
     fn deserialize_unit_struct<V>(self, _name: &'static str, visitor: V) -> Result<V::Value>

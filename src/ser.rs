@@ -15,14 +15,23 @@ struct Serializer<'a> {
 impl<'a> Serializer<'a> {
     fn write_u8(&mut self, v: u8) -> Result<()> {
         *self.buf.get_mut(self.pos).ok_or(Error::Overrun)? = v;
-        self.pos += 1;
+        // We can use non-overflowing add here because the dereference using pos
+        // just succeeded, meaning it is < buf.len, and buf.len can't be larger
+        // than usize::MAX.
+        self.pos = self.pos.wrapping_add(1);
         Ok(())
     }
 
     fn get_ary_mut<const N: usize>(&mut self) -> Result<&mut [u8; N]> {
         let chunk = self.buf.get_mut(self.pos..self.pos + N)
             .ok_or(Error::Overrun)?;
-        self.pos += N;
+        // Restate the property of `get_mut` for the compiler. This helps avoid
+        // generating unnecessary checks.
+        assert!(chunk.len() == N);
+        // We can use non-overflowing add here because the dereference using pos
+        // just succeeded, meaning it is < buf.len, and buf.len can't be larger
+        // than usize::MAX.
+        self.pos = self.pos.wrapping_add(N);
         Ok(chunk.try_into().unwrap())
     }
 
@@ -119,31 +128,35 @@ impl<'a, 'b> ser::Serializer for &'a mut Serializer<'b> {
     }
 
     fn serialize_bool(self, v: bool) -> Result<()> {
-        self.write_u8(v as u8)
+        self.write_u8(u8::from(v))
     }
 
     fn serialize_char(self, v: char) -> Result<()> {
-        // As of the current Unicode version, the maximum UTF-8 encoded length
-        // of any char is 4 bytes, which is also sizeof(char). So, that's handy.
-        //
-        // To ensure that any char value can encode, we require 4 bytes.
-        // However, since we don't always consume all 4, we can't use the array
-        // access routine.
-        let dest = self.buf.get_mut(self.pos..self.pos + 4)
-            .ok_or(Error::Overrun)?;
-        let encoded = v.encode_utf8(dest);
-        // Only advance by the required number of bytes.
-        self.pos += encoded.len();
-        Ok(())
+        if false {
+            // As of the current Unicode version, the maximum UTF-8 encoded length
+            // of any char is 4 bytes, which is also sizeof(char). So, that's handy.
+            //
+            // To ensure that any char value can encode, we require 4 bytes.
+            // However, since we don't always consume all 4, we can't use the array
+            // access routine.
+            let dest = self.buf.get_mut(self.pos..self.pos + 4)
+                .ok_or(Error::Overrun)?;
+            let encoded = v.encode_utf8(dest);
+            // Only advance by the required number of bytes.
+            self.pos += encoded.len();
+            Ok(())
+        } else {
+            return Err(Error::NotSupported);
+        }
     }
 
 
     fn serialize_none(self) -> Result<()> {
-        self.write_u8(0)
+        self.serialize_bool(false)
     }
 
     fn serialize_some<T: Serialize + ?Sized>(self, v: &T) -> Result<()> {
-        self.write_u8(1)?;
+        self.serialize_bool(true)?;
         v.serialize(self)
     }
 
