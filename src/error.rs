@@ -33,5 +33,10 @@ impl serde::de::Error for Error {
     }
 }
 
+// Allow our use by crates that have serde's `std` feature enabled. serde
+// reexports `StdError` under both `serde::ser` and `serde::de`; we just have to
+// pick one.
+impl serde::ser::StdError for Error {}
+
 pub type Result<T> = core::result::Result<T, Error>;
 
