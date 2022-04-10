@@ -3,6 +3,11 @@ name = "hubpack_derive"
 version = "0.1.0"
 authors = ["Cliff L. Biffle <code@cliffle.com>"]
 edition = "2021"
+description = "Derive macro for hubpack"
+license = "MPL-2.0"
+repository = "https://github.com/cbiffle/hubpack/"
+keywords = ["serde", "embedded", "no_std"]
+readme = "README.md"
 
 [lib]
 proc-macro = true
