@@ -1,3 +1,38 @@
+//! A predictable serialization format for `serde`.
+//!
+//! `hubpack` is an algorithm for converting Rust values to bytes and back. It
+//! was originally designed for encoding messages sent between embedded
+//! programs. It is designed for use with `serde`.
+//!
+//! Some of the nice things about `hubpack` include:
+//!
+//! - Its encoding format is relatively compact.
+//!
+//! - Its encoding format is _predictable._ In particular, there are no
+//!   variable-length integer encodings.
+//!
+//! - Because the size is predictable, `hubpack` provides a `SerializedSize` trait.
+//!   Any type that implements `SerializedSize` can report the maximum number of
+//!   bytes necessary to encode it using `hubpack`. This means you can allocate a
+//!   fixed-size buffer without worry. (You can `#[derive(SerializedSize)]` for your
+//!   own types.)
+//!
+//! - The encode/decode implementations generate fairly small, efficient code.
+//!
+//! - The implementation uses very little `unsafe` code, only in specific cases
+//!   with a measurable performance improvement and no reasonable alternative.
+//!
+//! You might not want to use `hubpack` because of the following limitations:
+//!
+//! - `hubpack` is designed for fixed-size small data structures, and cannot encode
+//!   things like `Vec`, `str`, and maps.
+//!
+//! - `hubpack` does not support `enum` types with more than 256 variants.
+//!
+//! - `hubpack` aims for predictability over compactness, so certain types of data
+//!   -- like lots of integers whose values are small relative to their types -- can
+//!   be more compactly encoded using formats like `bincode`.
+
 #![no_std]
 
 pub mod ser;
@@ -7,12 +42,14 @@ pub mod error;
 pub mod size;
 
 pub use de::deserialize;
-// pub use error::{Error, Result};
+pub use error::{Error, Result};
 pub use ser::serialize;
 pub use size::SerializedSize;
 
+/// Derive macro for the `SerializedSize` trait.
 pub use hubpack_derive::SerializedSize;
 
+// Internal re-export to make derive macros work inside the crate.
 extern crate self as hubpack;
 
 #[cfg(test)]

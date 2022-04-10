@@ -1,6 +1,22 @@
+//! Serialization of Rust values into `hubpack` format.
+
 use serde::{ser, Serialize};
 use crate::error::{Error, Result};
 
+/// Serializes `value`, which must implement `serde::Serialize`, into `buf`.
+/// On success, returns the number of bytes used.
+///
+/// Failures in `hubpack` itself fall into two groups.
+///
+/// - Dynamic failures: `Overrun`. This means that `buf` was not large enough to
+///   contain the serialized representation of `value`, but a larger `buf` might
+///   have succeeded.
+/// - Static failures: `TooManyVariants` and `NotSupported`. These mean that the
+///   type of `value` is simply incompatible with `hubpack` and won't work.
+///
+/// The catch-all error `Custom` may be produced by the `Serialize`
+/// implementation of `value` or anything contained within `value`, but is never
+/// produced by `hubpack` directly.
 pub fn serialize(buf: &mut [u8], value: &impl Serialize) -> Result<usize> {
     let mut s = Serializer { buf, pos: 0 };
     value.serialize(&mut s)?;

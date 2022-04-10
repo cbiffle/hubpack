@@ -1,14 +1,31 @@
+//! Deserializing `hubpack`-encoded values back into Rust.
+
 use serde::de::{self, Visitor, IntoDeserializer};
 use serde::Deserialize;
 use crate::error::{Error, Result};
 
+/// Deserializes a `T` from the serialized representation at the start of
+/// `data`. Deserialization may succeed even if there's additional data tacked
+/// onto the end of the `hubpack` serialized representation.
+///
+/// On success, this returns two values:
+/// - The `T` that was deserialized, and
+/// - The rest of `data`, as a slice.
+///
+/// The remaining, unused `data` is returned as a slice, rather than a number of
+/// bytes consumed or remaining, so that you can use the rest of the data
+/// without incurring a slice bounds check.
+///
+/// Note that the `hubpack` format is explicitly designed to allow multiple
+/// serialized values to be simply concatenated together and then deserialized
+/// correctly.
 pub fn deserialize<T: de::DeserializeOwned>(data: &[u8]) -> Result<(T, &[u8])> {
     let mut d = Deserializer { data };
     let val = T::deserialize(&mut d)?;
     Ok((val, d.data))
 }
 
-pub struct Deserializer<'de> {
+struct Deserializer<'de> {
     data: &'de [u8],
 }
 

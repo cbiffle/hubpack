@@ -1,4 +1,12 @@
+//! Reasoning about the maximum encoded size of types.
+
+/// The `SerializedSize` trait is implemented by types that have a predictable
+/// maximum size when encoded using `hubpack`.
+///
+/// `SerializedSize` is implemented for common standard types, and a derive
+/// macro is available for your custom types.
 pub trait SerializedSize {
+    /// Maximum encoded size of `Self`, in bytes.
     const MAX_SIZE: usize;
 }
 
