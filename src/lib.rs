@@ -108,6 +108,11 @@ mod tests {
     round_trip!(rt_unit_struct: UnitStruct = UnitStruct);
 
     #[derive(Debug, Serialize, Deserialize, PartialEq, SerializedSize)]
+    struct EmptyStruct {}
+
+    round_trip!(rt_empty_struct: EmptyStruct = EmptyStruct {});
+
+    #[derive(Debug, Serialize, Deserialize, PartialEq, SerializedSize)]
     struct TupleStruct(u8, u32);
 
     round_trip!(rt_tuple_struct: TupleStruct = TupleStruct(12, 345678));
