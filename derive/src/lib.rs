@@ -75,14 +75,21 @@ fn gen_fields_size<'a>(
     fields: impl IntoIterator<Item = &'a syn::Field>,
 ) -> proc_macro2::TokenStream {
 
-    let stmts = fields.into_iter().map(|f| {
-        let ty = &f.ty;
-        quote_spanned! {f.span()=>
-            <#ty as ::hubpack::SerializedSize>::MAX_SIZE
-        }
-    });
+    let mut stmts = fields
+        .into_iter()
+        .map(|f| {
+            let ty = &f.ty;
+            quote_spanned! {f.span()=>
+                <#ty as ::hubpack::SerializedSize>::MAX_SIZE
+            }
+        })
+        .peekable();
 
-    quote_spanned! {ty.span()=> #( #stmts )+* }
+    if stmts.peek().is_some() {
+        quote_spanned! {ty.span()=> #( #stmts )+* }
+    } else {
+        gen_unit(ty)
+    }
 }
 
 fn gen_fields(
