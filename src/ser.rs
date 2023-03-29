@@ -91,6 +91,10 @@ impl<'a, 'b> ser::Serializer for &'a mut Serializer<'b> {
     type SerializeSeq = ser::Impossible<(), Error>;
     type SerializeMap = ser::Impossible<(), Error>;
 
+    fn is_human_readable(&self) -> bool {
+        false
+    }
+
     fn serialize_unit(self) -> Result<()> {
         Ok(())
     }
