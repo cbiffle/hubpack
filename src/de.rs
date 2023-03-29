@@ -68,6 +68,10 @@ impl<'de> Deserializer<'de> {
 impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {
     type Error = Error;
 
+    fn is_human_readable(&self) -> bool {
+        false
+    }
+
     fn deserialize_unit<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
