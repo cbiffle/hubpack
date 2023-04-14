@@ -2,12 +2,15 @@
 name = "hubpack"
 version = "0.1.2"
 edition = "2021"
+description = "A predictable serialization format."
+license = "MPL-2.0"
+readme = "README.mkdn"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde = { version = "1.0.136", default-features = false }
-hubpack_derive = { path = "derive" }
+hubpack_derive = { path = "derive", version = "0.1.0" }
 
 [dev-dependencies]
 serde = { version = "1.0.136", default-features = false, features = ["derive"] }
