@@ -189,7 +189,7 @@ impl<'de, 'a> de::Deserializer<'de> for &'a mut Deserializer<'de> {
     where
         V: Visitor<'de>,
     {
-        visitor.visit_seq(SeqAccess { inner: self, len: len })
+        visitor.visit_seq(SeqAccess { inner: self, len })
     }
 
     fn deserialize_tuple_struct<V>(self, _name: &'static str, len: usize, visitor: V) -> Result<V::Value>

@@ -166,7 +166,7 @@ impl<'a, 'b> ser::Serializer for &'a mut Serializer<'b> {
             self.pos += encoded.len();
             Ok(())
         } else {
-            return Err(Error::NotSupported);
+            Err(Error::NotSupported)
         }
     }
 

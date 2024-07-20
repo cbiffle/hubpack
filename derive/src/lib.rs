@@ -2,7 +2,6 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote_spanned;
-use syn;
 use syn::spanned::Spanned;
 
 #[proc_macro_derive(SerializedSize)]
