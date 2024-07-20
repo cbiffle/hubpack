@@ -1,8 +1,12 @@
 # `hubpack`: a predictable `serde` format
 
+**Status:** Production deployed (in my own systems, and also in Oxide Computer
+systems).
+
 `hubpack` is an algorithm for converting Rust values to bytes and back. It was
 originally designed for encoding messages sent between embedded programs. It is
-designed for use with `serde`.
+designed for use with `serde`, and its encoding is similar to a subset of
+`ssmarshal`.
 
 Some of the nice things about `hubpack` include:
 
@@ -19,16 +23,32 @@ Some of the nice things about `hubpack` include:
 
 - The encode/decode implementations generate fairly small, efficient code.
 
-- The implementation uses very little `unsafe` code, only in specific cases
-  with a measurable performance improvement and no reasonable alternative.
+- The implementation uses no `unsafe` code.
 
 You might not want to use `hubpack` because of the following limitations:
 
 - `hubpack` is designed for fixed-size small data structures, and cannot encode
-  things like `Vec`, `str`, and maps.
+  things like `Vec`, `str`, and maps. (Though there are patterns for doing
+  similar things if you need it; see below.)
 
 - `hubpack` does not support `enum` types with more than 256 variants.
 
 - `hubpack` aims for predictability over compactness, so certain types of data
   -- like lots of integers whose values are small relative to their types -- can
   be more compactly encoded using formats like `bincode`.
+
+## Handling variable length payloads
+
+`hubpack` itself won't serialize variable length types like slice or `Vec` or
+`String`. You can still use `hubpack` to build encodings or protocols that use
+variable length chunks, you just have to use some care.
+
+The basic pattern is: include a size field in the fixed-length `hubpack`-encoded
+portion of the message, and then concatenate the variable length data onto the
+end.
+
+To support this, `hubpack` operations always give you "change." The
+`deserialize` function hands you a slice representing the unused part of its
+input buffer, which you can use to extract any trailing data (or another
+`hubpack` message). `serialize` instead gives you the serialized size, and you
+can slice your output buffer with that information.

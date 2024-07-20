@@ -35,6 +35,8 @@
 
 #![no_std]
 
+#![forbid(unsafe_code)]
+
 pub mod ser;
 pub mod de;
 pub mod error;
