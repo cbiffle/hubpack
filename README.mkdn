@@ -25,6 +25,9 @@ Some of the nice things about `hubpack` include:
 
 - The implementation uses no `unsafe` code.
 
+- The encoding format tends to play well with [COBS] for framing (I think it
+  goes particularly well with [`corncobs`] but of course I'd say that).
+
 You might not want to use `hubpack` because of the following limitations:
 
 - `hubpack` is designed for fixed-size small data structures, and cannot encode
@@ -52,3 +55,6 @@ To support this, `hubpack` operations always give you "change." The
 input buffer, which you can use to extract any trailing data (or another
 `hubpack` message). `serialize` instead gives you the serialized size, and you
 can slice your output buffer with that information.
+
+[COBS]: https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing
+[`corncobs`]: https://docs.rs/corncobs
